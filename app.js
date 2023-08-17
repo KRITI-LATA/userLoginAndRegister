@@ -31,7 +31,7 @@ initializerDatabaseServer();
 
 app.post("/register", async (request, response) => {
   const { username, name, password, gender, location } = request.body;
-  const hashedPassword = await bcrypt.hash(request.body.password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
   const selectUserQuery = `select * from user 
     where username = '${username}'`;
   const dbUser = await db.get(selectUserQuery);
@@ -41,14 +41,14 @@ app.post("/register", async (request, response) => {
         '${name}', '${password}', '${gender}', '${location}')`;
     const dbResponse = await db.run(createUserData);
     if (password.length < 5) {
-      response.status = 400;
+      response.status(400);
       response.send("Password is too short");
     } else {
-      response.status = 200;
+      response.status(200);
       response.send("User created successfully");
     }
   } else {
-    response.status = 400;
+    response.status(400);
     response.send("User already exists");
   }
 });
@@ -59,15 +59,15 @@ app.post("/login", async (request, response) => {
     username = '${username}'`;
   const dbUser = await db.get(selectUserQuery);
   if (dbUser === undefined) {
-    response.status = 400;
+    response.status(400);
     response.send("Invalid user");
   } else {
     const isPasswordMatched = await bcrypt.compare(password, dbUser.password);
     if (isPasswordMatched === true) {
-      response.status = 200;
+      response.status(200);
       response.send("Login success!");
     } else {
-      response.status = 400;
+      response.status(400);
       response.send("Invalid password");
     }
   }
@@ -85,7 +85,7 @@ app.put("/change-password", async (request, response) => {
     if (isValidPassword === true) {
       const lengthOfNewPassword = newPassword.length;
       if (lengthOfNewPassword < 5) {
-        response.status = 400;
+        response.status(400);
         response.send("Password is too short");
       } else {
         const encryptedPassword = await bcrypt.hash(newPassword, 10);
@@ -93,11 +93,11 @@ app.put("/change-password", async (request, response) => {
                 password = '${encryptedPassword}', 
                 where username = '${username}';`;
         await db.run(updatePasswordQuery);
-        response.status = 200;
+        response.status(200);
         response.send("Password updated");
       }
     } else {
-      response.status = 400;
+      response.status(400);
       response.send("Invalid current password");
     }
   }
