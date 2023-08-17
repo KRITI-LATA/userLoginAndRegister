@@ -39,11 +39,12 @@ app.post("/register", async (request, response) => {
     const createUserData = `insert into user 
         (username, name, password, gender, location) values ('${username}', 
         '${name}', '${password}', '${gender}', '${location}')`;
-    const dbResponse = await db.run(createUserData);
+
     if (password.length < 5) {
       response.status(400);
       response.send("Password is too short");
     } else {
+      let newUserDetails = await db.run(createUserData);
       response.status(200);
       response.send("User created successfully");
     }
@@ -80,7 +81,10 @@ app.put("/change-password", async (request, response) => {
   const selectForUserQuery = `select * from user 
     where username = '${username}';`;
   const dbUser = await db.get(selectForUserQuery);
-  if (dbUser !== undefined) {
+  if (dbUser === undefined) {
+    response.status(400);
+    response.send("User not register");
+  } else {
     const isValidPassword = await bcrypt.compare(oldPassword, dbUser.password);
     if (isValidPassword === true) {
       const lengthOfNewPassword = newPassword.length;
