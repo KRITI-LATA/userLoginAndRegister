@@ -38,7 +38,7 @@ app.post("/register", async (request, response) => {
   if (dbUser === undefined) {
     const createUserData = `insert into user 
         (username, name, password, gender, location) values ('${username}', 
-        '${name}', '${password}', '${gender}', '${location}')`;
+        '${name}', '${hashedPassword}', '${gender}', '${location}')`;
 
     if (password.length < 5) {
       response.status(400);
@@ -94,7 +94,7 @@ app.put("/change-password", async (request, response) => {
       } else {
         const encryptedPassword = await bcrypt.hash(newPassword, 10);
         const updatePasswordQuery = `update user set 
-                password = '${encryptedPassword}', 
+                password = '${encryptedPassword}' 
                 where username = '${username}';`;
         await db.run(updatePasswordQuery);
         response.status(200);
